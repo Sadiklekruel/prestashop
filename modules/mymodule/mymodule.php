@@ -3,7 +3,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class MyModule extends Module
+class mymodule extends Module
 {
     public function __construct()
     {
@@ -22,7 +22,7 @@ class MyModule extends Module
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
 
-        if (!Configuration::get('MYMODULE_NAME')) {
+        if (!Configuration::get('mymodule_NAME')) {
             $this->warning = $this->l('No name provided');
         }
     }
@@ -36,7 +36,7 @@ class MyModule extends Module
         if (!parent::install()
             || !$this->registerHook('leftColumn')
             || !$this->registerHook('header')
-            || !Configuration::updateValue('MYMODULE_NAME', 'my friend')
+            || !Configuration::updateValue('mymodule_NAME', 'my friend')
         ) {
             return false;
         }
@@ -47,7 +47,7 @@ class MyModule extends Module
     public function uninstall()
     {
         if (!parent::uninstall()
-            || !Configuration::deleteByName('MYMODULE_NAME')
+            || !Configuration::deleteByName('mymodule_NAME')
         ) {
             return false;
         }
@@ -60,7 +60,7 @@ class MyModule extends Module
         $output = null;
 
         if (Tools::isSubmit('submit'.$this->name)) {
-            $my_module_name = strval(Tools::getValue('MYMODULE_NAME'));
+            $my_module_name = strval(Tools::getValue('mymodule_NAME'));
             if (!$my_module_name
                 || empty($my_module_name)
                 || !Validate::isGenericName($my_module_name)
@@ -69,13 +69,13 @@ class MyModule extends Module
             }
             else
             {
-                Configuration::updateValue('MYMODULE_NAME', $my_module_name);
+                Configuration::updateValue('mymodule_NAME', $my_module_name);
                 $output .= $this->displayConfirmation($this->l('Settings updated'));
             }
         }
         return $output.$this->displayForm();
     }
-    
+
     public function displayForm()
     {
         // Get default language
@@ -90,7 +90,7 @@ class MyModule extends Module
             array(
                 'type' => 'text',
                 'label' => $this->l('Configuration value'),
-                'name' => 'MYMODULE_NAME',
+                'name' => 'mymodule_NAME',
                 'size' => 20,
                 'required' => true
             )
@@ -132,18 +132,22 @@ class MyModule extends Module
         );
 
         // Load current value
-        $helper->fields_value['MYMODULE_NAME'] = Configuration::get('MYMODULE_NAME');
+        $helper->fields_value['mymodule_NAME'] = Configuration::get('mymodule_NAME');
 
         return $helper->generateForm($fields_form);
     }
 
     public function hookDisplayLeftColumn($params)
     {
+        $productObj = new Product();
+		$products = $productObj->getProducts(Context::getContext()->language->id, 0, 0, 'id_product', 'DESC', false, true );
+        $total = count($products);
         $this->context->smarty->assign(
             array(
-            'my_module_name' => Configuration::get('MYMODULE_NAME'),
+            'my_module_name' => Configuration::get('mymodule_NAME'),
             'my_module_link' => $this->context->link->getModuleLink('mymodule', 'display'),
-            'my_module_message' => $this->l('This is a simple text message') // Do not forget to enclose your strings in the l() translation method
+            'my_module_message' => $this->l('This is a simple text message'), // Do not forget to enclose your strings in the l() translation method
+            'my_module_total' => $total
             )
         );
 
